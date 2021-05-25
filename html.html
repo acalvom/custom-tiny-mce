@@ -12,32 +12,59 @@
             selector: '#mytextarea',
             height: 500,
             plugins: [
-                'advlist autolink lists link image charmap print preview anchor',
-                'searchreplace visualblocks code fullscreen',
-                'insertdatetime media table paste code help wordcount'
+                'advlist anchor autolink autosave charmap codesample code directionality fullscreen',
+                'help hr image imagetools importcss insertdatetime lists link media',
+                'nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace',
+                'table template textpattern toc visualblocks visualchars wordcount'
             ],
+            // Image handlers
+            imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
+            image_advtab: true,
+            image_title: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            // Image picker
+            file_picker_callback: function (cb, value, meta) {
+                let input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+                input.onchange = function () {
+                    let file = this.files[0];
+                    let reader = new FileReader();
+                    reader.onload = function () {
+                        let id = 'blobid' + (new Date()).getTime();
+                        let blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                        let base64 = reader.result.split(',')[1];
+                        let blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                    reader.readAsDataURL(file);
+                };
+                input.click();
+            },
+            image_list: [
+                {title: 'My image 1', value: 'http://www.upm.es/themes/comun/logos/internacional.png'},
+                {title: 'My image 2', value: 'https://www.gti.ssr.upm.es/images/st_king/logos/upm_p.png'}
+            ],
+            menubar: 'file edit insert format tools table help developer',
             menu: {
-                file: {title: '', items: ''},
-                edit: {title: 'Edit', items: 'undo redo | cut copy | selectall | searchreplace'},
-                view: {title: 'View', items: 'code | visualaid visualchars | '},
-                insert: {
-                    title: 'Insert',
-                    items: 'image link media template codesample inserttable | charmap emoticons hr | pagebreak nonbreaking toc | insertdatetime'
-                },
-                format: {
-                    title: 'Format',
-                    items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat'
-                },
-                tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
-                table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
-                help: {title: 'Help', items: 'help'}
+                file: { title: 'File', items: 'newdocument | print' },
+                edit: { title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace' },
+                insert: { title: 'Insert', items: 'image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime' },
+                format: { title: 'Format', items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat' },
+                tools: { title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount' },
+                table: { title: 'Table', items: 'inserttable | cell row column | tableprops deletetable' },
+                help: { title: 'Help', items: 'help' },
+                developer: {title: 'Developer', items: 'code | visualblocks' }
             },
             toolbar: 'preview | ' +
+                'image | ' +
                 'undo redo | formatselect | ' +
                 'bold italic backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist outdent indent | ' +
                 'removeformat | help',
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
         });
     </script>
     <title>Customize TinyEMC</title>
@@ -49,7 +76,7 @@
 <div class="container">
     <h1>TinyMCE</h1>
     <form method="post">
-        <textarea id="mytextarea">Hello, World!</textarea>
+        <textarea id="mytextarea">Escribe algo...</textarea>
     </form>
 </div>
 
