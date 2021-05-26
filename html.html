@@ -3,12 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <script src="node_modules/tinymce/tinymce.min.js"></script>
+
     <script>
         tinymce.init({
             selector: '#mytextarea',
@@ -34,12 +33,18 @@
                     let size = this.files[0].size;
                     console.log(file)
 
-                    let form = document.getElementsByClassName('tox-form');
-                    console.log(form)
 
                     let reader = new FileReader();
                     if (size > 1000000) {
-                        console.log('file is too large: ' + size)
+                        let tag = document.createElement("span");
+                        let text = document.createTextNode("File is too large");
+                        tag.appendChild(text);
+                        let form = document.getElementsByClassName('tox-form');
+
+                        form[0].childNodes[0].id = "sourceLargeImage";
+                        console.log(form[0].childNodes[0])
+                        let element = document.getElementById("sourceLargeImage");
+                        element.appendChild(tag);
                     }
                     if (size <= 1000000) {
                         console.log('ok')
