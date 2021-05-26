@@ -4,9 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script src="node_modules/tinymce/tinymce.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <script src="node_modules/tinymce/tinymce.min.js"></script>
     <script>
         tinymce.init({
             selector: '#mytextarea',
@@ -15,14 +17,13 @@
                 'advlist anchor autolink autosave charmap codesample code directionality fullscreen',
                 'help hr image imagetools importcss insertdatetime lists link media',
                 'nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace',
-                'table template textpattern toc visualblocks visualchars wordcount'
+                'table tinydrive template textpattern toc visualblocks visualchars wordcount'
             ],
             // Image handlers
             imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
-            image_advtab: true,
-            image_title: true,
             automatic_uploads: true,
             file_picker_types: 'image',
+            // image_dimensions: false,
             // Image picker
             file_picker_callback: function (cb, value, meta) {
                 let input = document.createElement('input');
@@ -30,33 +31,48 @@
                 input.setAttribute('accept', 'image/*');
                 input.onchange = function () {
                     let file = this.files[0];
+                    let size = this.files[0].size;
+                    console.log(file)
+
+                    let form = document.getElementsByClassName('tox-form');
+                    console.log(form)
+
                     let reader = new FileReader();
-                    reader.onload = function () {
-                        let id = 'blobid' + (new Date()).getTime();
-                        let blobCache =  tinymce.activeEditor.editorUpload.blobCache;
-                        let base64 = reader.result.split(',')[1];
-                        let blobInfo = blobCache.create(id, file, base64);
-                        blobCache.add(blobInfo);
-                        cb(blobInfo.blobUri(), { title: file.name });
-                    };
-                    reader.readAsDataURL(file);
+                    if (size > 1000000) {
+                        console.log('file is too large: ' + size)
+                    }
+                    if (size <= 1000000) {
+                        console.log('ok')
+                        reader.onload = function () {
+                            let id = 'blobid' + (new Date()).getTime();
+                            let blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                            let base64 = reader.result.split(',')[1];
+                            let blobInfo = blobCache.create(id, file, base64);
+                            blobCache.add(blobInfo);
+                            cb(blobInfo.blobUri(), {title: file.name});
+                        };
+                        reader.readAsDataURL(file);
+                    }
                 };
                 input.click();
             },
-            image_list: [
-                {title: 'My image 1', value: 'http://www.upm.es/themes/comun/logos/internacional.png'},
-                {title: 'My image 2', value: 'https://www.gti.ssr.upm.es/images/st_king/logos/upm_p.png'}
-            ],
+
             menubar: 'file edit insert format tools table help developer',
             menu: {
-                file: { title: 'File', items: 'newdocument | print' },
-                edit: { title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace' },
-                insert: { title: 'Insert', items: 'image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime' },
-                format: { title: 'Format', items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat' },
-                tools: { title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount' },
-                table: { title: 'Table', items: 'inserttable | cell row column | tableprops deletetable' },
-                help: { title: 'Help', items: 'help' },
-                developer: {title: 'Developer', items: 'code | visualblocks' }
+                file: {title: 'File', items: 'newdocument | print'},
+                edit: {title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace'},
+                insert: {
+                    title: 'Insert',
+                    items: 'image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime'
+                },
+                format: {
+                    title: 'Format',
+                    items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat'
+                },
+                tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
+                table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
+                help: {title: 'Help', items: 'help'},
+                developer: {title: 'Developer', items: 'code | visualblocks'}
             },
             toolbar: 'preview | ' +
                 'image | ' +
@@ -79,6 +95,12 @@
         <textarea id="mytextarea">Escribe algo...</textarea>
     </form>
 </div>
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 </body>
 </html>
