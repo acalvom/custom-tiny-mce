@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <script src="node_modules/tinymce/tinymce.min.js"></script>
@@ -22,32 +21,24 @@
             imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
             automatic_uploads: true,
             file_picker_types: 'image',
-            // image_dimensions: false,
             // Image picker
-            file_picker_callback: function (cb, value, meta) {
+            file_picker_callback: function (cb) {
                 let input = document.createElement('input');
                 input.setAttribute('type', 'file');
                 input.setAttribute('accept', 'image/*');
                 input.onchange = function () {
                     let file = this.files[0];
                     let size = this.files[0].size;
-                    console.log(file)
+                    // console.log(file)
 
-
-                    let reader = new FileReader();
                     if (size > 1000000) {
-                        let tag = document.createElement("span");
-                        let text = document.createTextNode("File is too large");
-                        tag.appendChild(text);
-                        let form = document.getElementsByClassName('tox-form');
-
-                        form[0].childNodes[0].id = "sourceLargeImage";
-                        console.log(form[0].childNodes[0])
-                        let element = document.getElementById("sourceLargeImage");
-                        element.appendChild(tag);
-                    }
-                    if (size <= 1000000) {
-                        console.log('ok')
+                        let message = document.createElement("span");
+                        message.appendChild(document.createTextNode("File exceeds 1 MB"));
+                        let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
+                        sourceInput.id = "sourceLargeImage";
+                        sourceInput.appendChild(message);
+                    } else {
+                        let reader = new FileReader();
                         reader.onload = function () {
                             let id = 'blobid' + (new Date()).getTime();
                             let blobCache = tinymce.activeEditor.editorUpload.blobCache;
@@ -95,6 +86,13 @@
 
 <body>
 <div class="container">
+    <style>
+        #sourceLargeImage {
+            color: red;
+            font-size: small;
+        }
+    </style>
+
     <h1>TinyMCE</h1>
     <form method="post">
         <textarea id="mytextarea">Escribe algo...</textarea>
