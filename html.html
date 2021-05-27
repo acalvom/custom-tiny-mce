@@ -6,72 +6,92 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <script src="node_modules/tinymce/tinymce.min.js"></script>
-<!--    Need to install JWT -->
-<!--    <script src="https://cdn.tiny.cloud/1/fih9yz41sx4d68rduq22jqut1b3uzqgh6kcqc3p9rbjjro5r/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>-->
+    <!--    Need to install JWT -->
+    <!--    <script src="https://cdn.tiny.cloud/1/fih9yz41sx4d68rduq22jqut1b3uzqgh6kcqc3p9rbjjro5r/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>-->
 
     <script>
-        function example_image_upload_handler (blobInfo, success, failure, progress) {
-            var xhr, formData;
+        function get_filesize(url, callback) {
+            // Disable CORS in the browser
+            var blob = null;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true); // Notice "HEAD" instead of "GET",
+            xhr.responseType = "blob";//force the HTTP response, response-type header to be blob
+            xhr.onload = function () {
+                blob = xhr.response;
+                callback(blob);
+            }
+            xhr.send();
+        }
 
-            xhr = new XMLHttpRequest();
-            xhr.withCredentials = false;
-            xhr.open('POST', 'postAcceptor.php');
-
-            xhr.upload.onprogress = function (e) {
-                progress(e.loaded / e.total * 100);
+        tinymce.PluginManager.add('example', function (editor, url) {
+            var openDialog = function () {
+                return editor.windowManager.open({
+                    title: 'Insert image',
+                    body: {
+                        type: 'panel',
+                        items: [
+                            {type: 'urlinput', name: 'src', label: 'Source'},
+                            {type: 'input', name: 'title', label: 'Title'}
+                        ]
+                    },
+                    buttons: [
+                        {type: 'cancel', text: 'Close'},
+                        {type: 'submit', text: 'Save', primary: true}
+                    ],
+                    onSubmit: function (api) {
+                        var data = api.getData();
+                        var url = data.src.value;
+                        get_filesize(url, function (blob) {
+                            console.log(blob, blob.size);
+                        });
+                        editor.insertContent(data.src.value);
+                        api.close();
+                    },
+                    onChange: function (api) {
+                        var data = api.getData();
+                        console.log(data.src.value)
+                    }
+                });
             };
-
-            xhr.onload = function() {
-                var json;
-                console.log(xhr)
-                if (xhr.status === 403) {
-                    failure('HTTP Error: ' + xhr.status, { remove: true });
-                    return;
+            /* Add a button that opens a window */
+            editor.ui.registry.addButton('example', {
+                text: 'URL image',
+                icon: 'image',
+                onAction: function () {
+                    /* Open window */
+                    openDialog();
                 }
-
-                if (xhr.status < 200 || xhr.status >= 300) {
-                    failure('HTTP Error: ' + xhr.status);
-                    return;
+            });
+            /* Adds a menu item, which can then be included in any menu via the menu/menubar configuration */
+            editor.ui.registry.addMenuItem('example', {
+                text: 'Example plugin',
+                onAction: function () {
+                    /* Open window */
+                    openDialog();
                 }
-
-                json = JSON.parse(xhr.responseText);
-
-
-                if (!json || typeof json.location != 'string') {
-                    failure('Invalid JSON: ' + xhr.responseText);
-                    return;
+            });
+            /* Return the metadata for the help plugin */
+            return {
+                getMetadata: function () {
+                    return {
+                        name: 'Example plugin',
+                        url: 'http://exampleplugindocsurl.com'
+                    };
                 }
-
-                success(json.location);
             };
-
-            xhr.onerror = function () {
-                failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
-            };
-
-            formData = new FormData();
-            formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-            xhr.send(formData);
-        };
+        });
 
         tinymce.init({
             selector: '#mytextarea',
             height: 500,
             plugins: [
-                'advlist anchor autolink autosave charmap codesample code directionality fullscreen',
+                'advlist anchor autolink autosave charmap codesample code directionality example fullscreen',
                 'help hr image imagetools importcss insertdatetime lists link media',
                 'nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace',
                 'table tinydrive template textpattern toc visualblocks visualchars wordcount'
             ],
-            // Image handlers
             imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
             automatic_uploads: true,
-            images_dataimg_filter: function(img) {
-                console.log('me ejecuto')
-                return img.size <= 100; // blocks the upload of <img> elements with the attribute "internal-blob".
-            },
-            images_upload_handler: example_image_upload_handler,
             file_picker_types: 'image',
             // Image picker
             file_picker_callback: function (cb) {
@@ -83,7 +103,7 @@
                     let size = this.files[0].size;
                     console.log(file)
 
-                    if (size > 100000000) {
+                    if (size > 1000000) {
                         let message = document.createElement("span");
                         message.appendChild(document.createTextNode("File exceeds 1 MB"));
                         let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
@@ -120,15 +140,19 @@
                 tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
                 table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
                 help: {title: 'Help', items: 'help'},
-                developer: {title: 'Developer', items: 'code | visualblocks'}
+                developer: {title: 'Developer', items: 'code | visualblocks | example'}
             },
             toolbar: 'preview | ' +
-                'image | ' +
+                'image | example | ' +
                 'undo redo | formatselect | ' +
                 'bold italic backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist outdent indent | ' +
                 'removeformat | help',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+            setup: function (ed) {
+                var myContent = ed.id;
+                console.log(myContent);
+            }
         });
     </script>
     <title>Customize TinyEMC</title>
