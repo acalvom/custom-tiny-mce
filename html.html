@@ -10,6 +10,51 @@
 <!--    <script src="https://cdn.tiny.cloud/1/fih9yz41sx4d68rduq22jqut1b3uzqgh6kcqc3p9rbjjro5r/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>-->
 
     <script>
+        function example_image_upload_handler (blobInfo, success, failure, progress) {
+            var xhr, formData;
+
+            xhr = new XMLHttpRequest();
+            xhr.withCredentials = false;
+            xhr.open('POST', 'postAcceptor.php');
+
+            xhr.upload.onprogress = function (e) {
+                progress(e.loaded / e.total * 100);
+            };
+
+            xhr.onload = function() {
+                var json;
+                console.log(xhr)
+                if (xhr.status === 403) {
+                    failure('HTTP Error: ' + xhr.status, { remove: true });
+                    return;
+                }
+
+                if (xhr.status < 200 || xhr.status >= 300) {
+                    failure('HTTP Error: ' + xhr.status);
+                    return;
+                }
+
+                json = JSON.parse(xhr.responseText);
+
+
+                if (!json || typeof json.location != 'string') {
+                    failure('Invalid JSON: ' + xhr.responseText);
+                    return;
+                }
+
+                success(json.location);
+            };
+
+            xhr.onerror = function () {
+                failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+            };
+
+            formData = new FormData();
+            formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+            xhr.send(formData);
+        };
+
         tinymce.init({
             selector: '#mytextarea',
             height: 500,
@@ -22,6 +67,11 @@
             // Image handlers
             imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
             automatic_uploads: true,
+            images_dataimg_filter: function(img) {
+                console.log('me ejecuto')
+                return img.size <= 100; // blocks the upload of <img> elements with the attribute "internal-blob".
+            },
+            images_upload_handler: example_image_upload_handler,
             file_picker_types: 'image',
             // Image picker
             file_picker_callback: function (cb) {
@@ -31,9 +81,9 @@
                 input.onchange = function () {
                     let file = this.files[0];
                     let size = this.files[0].size;
-                    // console.log(file)
+                    console.log(file)
 
-                    if (size > 1000000) {
+                    if (size > 100000000) {
                         let message = document.createElement("span");
                         message.appendChild(document.createTextNode("File exceeds 1 MB"));
                         let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
