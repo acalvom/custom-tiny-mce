@@ -8,7 +8,6 @@ $accepted_origins = array("http://localhost:63342");
  * Change this line to set the upload folder *
  *********************************************/
 $imageFolder = "/images";
-echo ($_SERVER['HTTP_ORIGIN']);
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     // same-origin requests won't set an origin. If the origin is set, it must be valid.
     if (in_array($_SERVER['HTTP_ORIGIN'], $accepted_origins)) {
