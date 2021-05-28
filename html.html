@@ -42,9 +42,37 @@
                         var data = api.getData();
                         var url = data.src.value;
                         get_filesize(url, function (blob) {
-                            console.log(blob, blob.size);
+                            var file = new File([blob], "blobid" + (new Date()).getTime());
+                            var blobUri = URL.createObjectURL(file);
+                            console.log(file, blobUri);
+
+                            let reader = new FileReader();
+                            reader.onload = function () {
+                                let id = 'blobid' + (new Date()).getTime();
+                                let blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                                let base64 = reader.result.split(',')[1];
+                                let blobInfo = blobCache.create(id, file, base64);
+                                blobCache.add(blobInfo);
+                            };
+                            reader.readAsDataURL(file);
+
+                            var img = document.createElement('img');
+                            document.body.appendChild(img);
+                            img.src = url;
+                            console.log(img)
+                            // tinymce.activeEditor.insertContent('<img ' + img.src + '"/>');
+                            editor.dom.setAttrib(img, 'data-mce-id', '__mcenew');
+                            editor.focus();
+                            editor.selection.setContent(img.outerHTML);
+                            var insertedElm = editor.dom.select('*[data-mce-id="__mcenew"]')[0];
+                            editor.dom.setAttrib(insertedElm, 'data-mce-id', null);
+                            // var figureElm = editor.dom.create('figure', { class: 'image' });
+                            // editor.dom.insertAfter(figureElm, img);
+                            // figureElm.appendChild(img);
                         });
                         editor.insertContent(data.src.value);
+
+
                         api.close();
                     },
                     onChange: function (api) {
