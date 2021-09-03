@@ -1,213 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
     <script src="node_modules/tinymce/tinymce.min.js"></script>
     <!--    Need to install JWT -->
     <!--    <script src="https://cdn.tiny.cloud/1/fih9yz41sx4d68rduq22jqut1b3uzqgh6kcqc3p9rbjjro5r/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>-->
 
     <script>
-        function get_filesize(url, callback) {
-            // Disable CORS in the browser
-            var blob = null;
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true); // Notice "HEAD" instead of "GET",
-            xhr.responseType = "blob";//force the HTTP response, response-type header to be blob
-            xhr.onload = function () {
-                blob = xhr.response;
-                callback(blob);
-            }
-            xhr.send();
-        }
+      function get_filesize(url, callback) {
+        // Disable CORS in the browser
+        var blob = null;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true); // Notice "HEAD" instead of "GET",
+        xhr.responseType = "blob"; //force the HTTP response, response-type header to be blob
+        xhr.onload = function () {
+          blob = xhr.response;
+          callback(blob);
+        };
+        xhr.send();
+      }
 
-        tinymce.PluginManager.add('example', function (editor, url) {
-            var openDialog = function () {
-                return editor.windowManager.open({
-                    title: 'Insert image',
-                    body: {
-                        type: 'panel',
-                        items: [
-                            {type: 'urlinput', name: 'src', label: 'Source'},
-                            {type: 'input', name: 'title', label: 'Title'}
-                        ]
-                    },
-                    buttons: [
-                        {type: 'cancel', text: 'Close'},
-                        {type: 'submit', text: 'Save', primary: true}
-                    ],
-                    onSubmit: function (api) {
-                        var data = api.getData();
-                        var url = data.src.value;
-                        get_filesize(url, function (blob) {
-                            var file = new File([blob], "blobid" + (new Date()).getTime());
-                            var blobUri = URL.createObjectURL(file);
-                            console.log(file, blobUri);
-
-                            let reader = new FileReader();
-                            reader.onload = function () {
-                                let id = 'blobid' + (new Date()).getTime();
-                                let blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                                let base64 = reader.result.split(',')[1];
-                                let blobInfo = blobCache.create(id, file, base64);
-                                blobCache.add(blobInfo);
-                            };
-                            reader.readAsDataURL(file);
-
-                            var img = document.createElement('img');
-                            document.body.appendChild(img);
-                            img.src = url;
-                            console.log(img)
-                            // tinymce.activeEditor.insertContent('<img ' + img.src + '"/>');
-                            editor.dom.setAttrib(img, 'data-mce-id', '__mcenew');
-                            editor.focus();
-                            editor.selection.setContent(img.outerHTML);
-                            var insertedElm = editor.dom.select('*[data-mce-id="__mcenew"]')[0];
-                            editor.dom.setAttrib(insertedElm, 'data-mce-id', null);
-                            // var figureElm = editor.dom.create('figure', { class: 'image' });
-                            // editor.dom.insertAfter(figureElm, img);
-                            // figureElm.appendChild(img);
-                        });
-                        editor.insertContent(data.src.value);
-
-
-                        api.close();
-                    },
-                    onChange: function (api) {
-                        var data = api.getData();
-                        console.log(data.src.value)
-                    }
-                });
-            };
-            /* Add a button that opens a window */
-            editor.ui.registry.addButton('example', {
-                text: 'URL image',
-                icon: 'image',
-                onAction: function () {
-                    /* Open window */
-                    openDialog();
-                }
-            });
-            /* Adds a menu item, which can then be included in any menu via the menu/menubar configuration */
-            editor.ui.registry.addMenuItem('example', {
-                text: 'Example plugin',
-                onAction: function () {
-                    /* Open window */
-                    openDialog();
-                }
-            });
-            /* Return the metadata for the help plugin */
-            return {
-                getMetadata: function () {
-                    return {
-                        name: 'Example plugin',
-                        url: 'http://exampleplugindocsurl.com'
-                    };
-                }
-            };
-        });
-
-        tinymce.init({
-            selector: '#mytextarea',
-            height: 500,
-            plugins: [
-                'advlist anchor autolink autosave charmap codesample code directionality example fullscreen',
-                'help hr image imagetools importcss insertdatetime lists link media',
-                'nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace',
-                'table tinydrive template textpattern toc visualblocks visualchars wordcount'
+      tinymce.PluginManager.add("example", function (editor, url) {
+        var openDialog = function () {
+          return editor.windowManager.open({
+            title: "Insert image",
+            body: {
+              type: "panel",
+              items: [
+                { type: "urlinput", name: "src", label: "Source" },
+                { type: "input", name: "title", label: "Title" },
+              ],
+            },
+            buttons: [
+              { type: "cancel", text: "Close" },
+              { type: "submit", text: "Save", primary: true },
             ],
-            imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
-            automatic_uploads: true,
-            file_picker_types: 'image',
-            // Image picker
-            file_picker_callback: function (cb) {
-                let input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    let file = this.files[0];
-                    let size = this.files[0].size;
-                    console.log(file)
+            onSubmit: function (api) {
+              var data = api.getData();
+              var url = data.src.value;
+              get_filesize(url, function (blob) {
+                var file = new File([blob], "blobid" + new Date().getTime());
+                var blobUri = URL.createObjectURL(file);
+                console.log(file, blobUri);
 
-                    if (size > 1000000) {
-                        let message = document.createElement("span");
-                        message.appendChild(document.createTextNode("File exceeds 1 MB"));
-                        let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
-                        sourceInput.id = "sourceLargeImage";
-                        sourceInput.appendChild(message);
-                    } else {
-                        let reader = new FileReader();
-                        reader.onload = function () {
-                            let id = 'blobid' + (new Date()).getTime();
-                            let blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                            let base64 = reader.result.split(',')[1];
-                            let blobInfo = blobCache.create(id, file, base64);
-                            blobCache.add(blobInfo);
-                            cb(blobInfo.blobUri(), {title: file.name});
-                        };
-                        reader.readAsDataURL(file);
-                    }
+                let reader = new FileReader();
+                reader.onload = function () {
+                  let id = "blobid" + new Date().getTime();
+                  let blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                  let base64 = reader.result.split(",")[1];
+                  let blobInfo = blobCache.create(id, file, base64);
+                  blobCache.add(blobInfo);
                 };
-                input.click();
-            },
+                reader.readAsDataURL(file);
 
-            menubar: 'file edit insert format tools table help developer',
-            menu: {
-                file: {title: 'File', items: 'newdocument | print'},
-                edit: {title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace'},
-                insert: {
-                    title: 'Insert',
-                    items: 'image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime'
-                },
-                format: {
-                    title: 'Format',
-                    items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat'
-                },
-                tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
-                table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
-                help: {title: 'Help', items: 'help'},
-                developer: {title: 'Developer', items: 'code | visualblocks | example'}
+                var img = document.createElement("img");
+                document.body.appendChild(img);
+                img.src = url;
+                console.log(img);
+                // tinymce.activeEditor.insertContent('<img ' + img.src + '"/>');
+                editor.dom.setAttrib(img, "data-mce-id", "__mcenew");
+                editor.focus();
+                editor.selection.setContent(img.outerHTML);
+                var insertedElm = editor.dom.select('*[data-mce-id="__mcenew"]')[0];
+                editor.dom.setAttrib(insertedElm, "data-mce-id", null);
+                // var figureElm = editor.dom.create('figure', { class: 'image' });
+                // editor.dom.insertAfter(figureElm, img);
+                // figureElm.appendChild(img);
+              });
+              editor.insertContent(data.src.value);
+              api.close();
             },
-            toolbar: 'preview | ' +
-                'image | example | ' +
-                'undo redo | formatselect | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help',
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-            setup: function (ed) {
-                var myContent = ed.id;
-                console.log(myContent);
-            }
+            onChange: function (api) {
+              var data = api.getData();
+              console.log(data.src.value);
+            },
+          });
+        };
+        /* Add a button that opens a window */
+        editor.ui.registry.addButton("example", {
+          text: "URL image",
+          icon: "image",
+          onAction: function () {
+            /* Open window */
+            openDialog();
+          },
         });
+        /* Adds a menu item, which can then be included in any menu via the menu/menubar configuration */
+        editor.ui.registry.addMenuItem("example", {
+          text: "Example plugin",
+          onAction: function () {
+            /* Open window */
+            openDialog();
+          },
+        });
+        /* Return the metadata for the help plugin */
+        return {
+          getMetadata: function () {
+            return {
+              name: "Example plugin",
+              url: "http://exampleplugindocsurl.com",
+            };
+          },
+        };
+      });
+
+      tinymce.init({
+        selector: "#mytextarea",
+        height: 500,
+        plugins: [
+          "advlist anchor autolink autosave charmap codesample code directionality example fullscreen",
+          "help hr image imagetools insertdatetime lists link media",
+          "nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace",
+          "table tinydrive template textpattern toc visualblocks visualchars wordcount",
+          "spellchecker",
+        ],
+
+        toolbar:
+          "preview | " +
+          "image | example | " +
+          "undo redo | formatselect | " +
+          "bold italic backcolor | alignleft aligncenter " +
+          "alignright alignjustify | bullist numlist outdent indent | " +
+          "removeformat | help | spellchecker",
+         imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
+         automatic_uploads: true,
+         file_picker_types: 'image',
+         file_picker_callback: function (cb) {
+             let input = document.createElement('input');
+             input.setAttribute('type', 'file');
+             input.setAttribute('accept', 'image/*');
+             input.onchange = function () {
+                 let file = this.files[0];
+                 let size = this.files[0].size;
+                 console.log(file)
+
+                 if (size > 1000000) {
+                     let message = document.createElement("span");
+                     message.appendChild(document.createTextNode("File exceeds 1 MB"));
+                     let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
+                     sourceInput.id = "sourceLargeImage";
+                     sourceInput.appendChild(message);
+                 } else {
+                     let reader = new FileReader();
+                     reader.onload = function () {
+                         let id = 'blobid' + (new Date()).getTime();
+                         let blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                         let base64 = reader.result.split(',')[1];
+                         let blobInfo = blobCache.create(id, file, base64);
+                         blobCache.add(blobInfo);
+                         cb(blobInfo.blobUri(), {title: file.name});
+                     };
+                     reader.readAsDataURL(file);
+                 }
+             };
+             input.click();
+         },
+
+        menubar: "file edit insert format tools table help developer",
+         menu: {
+             file: {title: 'File', items: 'newdocument | print'},
+             edit: {title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace'},
+             insert: {
+                 title: 'Insert',
+                 items: 'image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime'
+             },
+             format: {
+                 title: 'Format',
+                 items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat'
+             },
+             tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
+             table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
+             help: {title: 'Help', items: 'help'},
+             developer: {title: 'Developer', items: 'code | visualblocks | example'}
+         },
+                 
+        content_style:
+          ".left { text-align: left; } " + "img.left { float: left; } " + "table.left { float: left; } " +
+           ".right { text-align: right; } " + "img.right { float: right; } " + "table.right { float: right; } " +
+          ".center { text-align: center; } " + "img.center { display: block; margin: 0 auto; } " + "table.center { display: block; margin: 0 auto; } " +
+          ".full { text-align: justify; } " + "img.full { display: block; margin: 0 auto; } " +  "table.full { display: block; margin: 0 auto; } " +
+          ".bold { font-weight: bold; } " +
+          ".italic { font-style: italic; } " +
+          ".underline { text-decoration: underline; } " +
+          ".example1 {} " +
+          "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }" +
+          ".tablerow1 { background-color: #D3D3D3; }",
+
+        formats: {
+          alignleft: { selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img,audio,video", classes: "left" },
+          aligncenter: { selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img,audio,video", classes: "center" },
+          alignright: { selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img,audio,video", classes: "right" },
+          alignfull: { selector: "p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img,audio,video", classes: "full" },
+          bold: { inline: "span", classes: "bold" },
+          italic: { inline: "span", classes: "italic" },
+          underline: { inline: "span", classes: "underline", exact: true },
+          strikethrough: { inline: "del" },
+          customformat: { inline: "span", styles: { color: "#00ff00", fontSize: "20px" }, attributes: { title: "My custom format" }, classes: "example1" },
+          redtext: {inline: "span", styles: { color: "#ff0000" }},
+          redheader: {block: "h1", styles: { color: "#ff0000" } },
+          novedad: {inline: "span", styles: { color: "#377c37", margin: "0 0 0 1em"}},
+          badge: {inline: "span", styles: { display: "inline-block", border: "1px solid #2276d2", "border-radius": "5px", padding: "2px 5px", margin: "0 2px", color: "#2276d2" }},
+        },
+
+        style_formats: [
+          { title: "General formats" },
+          { title: "Align left", format: "alignleft" },
+          { title: "Align center", format: "aligncenter" },
+          { title: "Align right", format: "alignright" },
+          { title: "Align full", format: "alignfull" },
+          { title: "Custom formats" },
+          { title: "Custom format", format: "customformat" },
+          { title: "Red header", format: "redheader" },
+          { title: "Red text", format: "redtext" },
+          { title: "Badge", format: "badge" },      
+          { title: "Novedad", format: "novedad" },      
+          { title: "Image formats" },
+          { title: "Image Left", selector: "img", styles: { float: "left", margin: "0 10px 0 10px" } },
+          { title: "Image Right", selector: "img", styles: { float: "right", margin: "0 0 10px 10px" } },
+        ],
+        
+        //   spellchecker_languages: 'English=en,Spanish=es',
+        
+        block_formats: 'Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; ' +
+        ' Align left=alignleft; Align center=aligncenter; Align right=alignright; Align full=alignfull; ' + 
+        ' Custom format=customformat; Red header=redheader; Red text=redtext; Badge=badge; Novedad=novedad;',
+
+        setup: function (ed) {
+          var myContent = ed.id;
+          console.log(myContent);
+        }
+      });
     </script>
     <title>Customize TinyEMC</title>
+  </head>
 
-
-</head>
-
-<body>
-<div class="container">
-    <style>
+  <body>
+    <div class="container">
+      <style>
         #sourceLargeImage {
-            color: red;
-            font-size: small;
+          color: red;
+          font-size: small;
         }
-    </style>
+      </style>
 
-    <h1>TinyMCE</h1>
-    <form method="post">
+      <h1>TinyMCE</h1>
+      <form method="post">
         <textarea id="mytextarea">Escribe algo...</textarea>
-    </form>
-</div>
+      </form>
+    </div>
 
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-</body>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </body>
 </html>
