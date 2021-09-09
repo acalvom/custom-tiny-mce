@@ -115,32 +115,31 @@
               type: "panel",
               items: [
                 { type: "urlinput", name: "src", label: "Source" },
-                { type: "input", name: "title", label: "Title" },
+                { type: "sizeinput", name: "size", label: "Dimensions", constrain: true },
               ],
+            },
+            initialData: { 
+              size: {
+                "width": "560",
+                "height": "314"
+              } 
             },
             buttons: [
               { type: "cancel", text: "Close" },
               { type: "submit", text: "Save", primary: true },
             ],
             onSubmit: function (api) {
-              var data = api.getData();
               function getId(url) {
                 var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                 var match = url.match(regExp);
-
-                if (match && match[2].length == 11) {
-                    return match[2];
-                } else {
-                    return 'error';
-                }
+                if (match && match[2].length == 11) return match[2];
+                else return 'error'; 
               }
-              var videoId = data.src.value;
-              var myId = getId(videoId);
-              console.log(myId);
-              /* Insert content when the window form is submitted */
-              // editor.insertContent('Title: ' + myId);
-
-              editor.insertContent('<iframe src="//www.youtube.com/embed/' + myId + '" width="' + data.width + '" height="' + data.height + '" allowfullscreen></iframe>');
+              var data = api.getData();
+              var videoId = getId(data.src.value);
+              var width = data.size.width;
+              var height = data.size.height;
+              editor.insertContent('<iframe src="//www.youtube.com/embed/' + videoId + '" width="' + width + '" height="' + height + '" allowfullscreen></iframe>');
               api.close();
             },
             onChange: function (api) {
@@ -313,7 +312,7 @@
 
       <h1>TinyMCE</h1>
       <form method="post">
-        <textarea id="mytextarea">Escribe algo...</textarea>
+        <textarea id="mytextarea"></textarea>
       </form>
     </div>
 
