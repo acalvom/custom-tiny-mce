@@ -107,11 +107,74 @@
         };
       });
 
+      tinymce.PluginManager.add("exampleMedia", function (editor, url) {
+        var openDialog = function () {
+          return editor.windowManager.open({
+            title: "Insert media",
+            body: {
+              type: "panel",
+              items: [
+                { type: "urlinput", name: "src", label: "Source" },
+                { type: "input", name: "title", label: "Title" },
+              ],
+            },
+            buttons: [
+              { type: "cancel", text: "Close" },
+              { type: "submit", text: "Save", primary: true },
+            ],
+            onSubmit: function (api) {
+              var data = api.getData();
+              function getId(url) {
+                var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                var match = url.match(regExp);
+
+                if (match && match[2].length == 11) {
+                    return match[2];
+                } else {
+                    return 'error';
+                }
+              }
+              var videoId = data.src.value;
+              var myId = getId(videoId);
+              console.log(myId);
+              /* Insert content when the window form is submitted */
+              // editor.insertContent('Title: ' + myId);
+
+              editor.insertContent('<iframe src="//www.youtube.com/embed/' + myId + '" width="' + data.width + '" height="' + data.height + '" allowfullscreen></iframe>');
+              api.close();
+            },
+            onChange: function (api) {
+              var data = api.getData();
+              console.log(data);
+            },
+          });
+        };
+        /* Add a button that opens a window */
+        editor.ui.registry.addButton("exampleMedia", {
+          text: "URL media",
+          icon: "media",
+          onAction: function () {
+            /* Open window */
+            openDialog();
+          },
+        });
+        /* Adds a menu item, which can then be included in any menu via the menu/menubar configuration */
+        editor.ui.registry.addMenuItem("exampleMedia", {
+          text: "Example media plugin",
+          onAction: function () {
+            /* Open window */
+            openDialog();
+          },
+        });
+      
+      });
+
+
       tinymce.init({
         selector: "#mytextarea",
         height: 500,
         plugins: [
-          "advlist anchor autolink autosave charmap codesample code directionality example fullscreen",
+          "advlist anchor autolink autosave charmap codesample code directionality example exampleMedia fullscreen",
           "help hr image imagetools insertdatetime lists link media",
           "nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace",
           "table tinydrive template textpattern toc visualblocks visualchars wordcount",
@@ -174,7 +237,7 @@
              tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
              table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
              help: {title: 'Help', items: 'help'},
-             developer: {title: 'Developer', items: 'code | visualblocks | example'}
+             developer: {title: 'Developer', items: 'code | visualblocks | example | exampleMedia'}
          },
                  
         content_style:
@@ -227,6 +290,8 @@
         block_formats: 'Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; ' +
         ' Align left=alignleft; Align center=aligncenter; Align right=alignright; Align full=alignfull; ' + 
         ' Custom format=customformat; Red header=redheader; Red text=redtext; Badge=badge; Novedad=novedad;',
+        media_alt_source: false,
+        media_poster: false,
 
         setup: function (ed) {
           var myContent = ed.id;
