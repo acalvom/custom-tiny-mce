@@ -118,11 +118,11 @@
                 { type: "sizeinput", name: "size", label: "Dimensions", constrain: true },
               ],
             },
-            initialData: { 
+            initialData: {
               size: {
                 "width": "560",
                 "height": "314"
-              } 
+              }
             },
             buttons: [
               { type: "cancel", text: "Close" },
@@ -130,16 +130,48 @@
             ],
             onSubmit: function (api) {
               function getId(url) {
-                var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                var match = url.match(regExp);
-                if (match && match[2].length == 11) return match[2];
-                else return 'error'; 
+                // var regExpYoutube = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                // var regExpDaily = /(?:dailymotion\.com(?:\/video|\/hub)|dai\.ly)\/([0-9a-z]+)(?:[\-_0-9a-zA-Z]+#video=([a-z0-9]+))?/g;
+                // var regExpDaily = /^.+dailymotion.com\/(video|hub|playlist)\/([^_]+)[^#]*(#video=([^_&]+))?/;
+                // var regExpDaily = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$|^(?:https?:\/\/)?(?:www\.)?dailymotion.com\/(video|hub)+(\/([^_]+))?[^#]*(‪#‎video‬=([^_&]+))?$|^(?:https?:\/\/)?(?:www\.)?vimeo.com\/([0-9]+)$/;
+                // <iframe src="https://www.dailymotion.com/embed/video/x841uqy?autoplay=1" width="100%" height="100%" allowfullscreen allow="autoplay"> </iframe>
+                
+              
+                var regExpYoutube = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+                var regExpDaily = /^(?:https?:\/\/)?(?:www\.)?dailymotion.com\/(video|hub)+(\/([^_]+))?[^#]*(‪#‎video‬=([^_&]+))?$/;
+                var regExpVimeo = /^(?:https?:\/\/)?(?:www\.)?vimeo.com\/([0-9]+)$/;
+
+                var matchYoutube = url.match(regExpYoutube);
+                var matchDaily = url.match(regExpDaily);
+                var matchVimeo = url.match(regExpVimeo);
+                console.log("matchYoutube ", matchYoutube);
+                console.log("matchDaily ", matchDaily);
+                console.log("matchVimeo ", matchVimeo);
+                
+
+                if (matchYoutube && matchYoutube[1].length == 11) return "//www.youtube.com/embed/" + matchYoutube[1];
+                else if (matchDaily) return "//www.dailymotion.com/embed/video/" + matchDaily[3];
+                else if (matchVimeo) return "//player.vimeo.com/video/" + matchVimeo[1] + "?title=0&amp;byline=0";
+                else return "Error"
+
+                // var regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$|^(?:https?:\/\/)?(?:www\.)?dailymotion.com\/(video|hub)+(\/([^_]+))?[^#]*(‪#‎video‬=([^_&]+))?$|^(?:https?:\/\/)?(?:www\.)?vimeo.com\/([0-9]+)$/
+                // var myRE = new RegExp (['^(?:https?:\/\/)?(?:www\\.)?(?:youtu\\.be\/|youtube\\.com\/(?:embed\/|v\/|watch\\?v=|watch\\?.+&v=))((\\w|-){11})(?:\\S+)?$',
+                //                         '|^(?:https?:\/\/)?(?:www\\.)?dailymotion.com\/(video|hub)+(\/([^_]+))?[^#]*(‪#‎video‬=([^_&]+))?$',
+                //                         '|^(?:https?:\/\/)?(?:www\\.)?vimeo.com\/([0-9]+)$'].join(''));
+
+                // var match = url.match(myRE);
+                // console.log("match ", match);
+                
               }
               var data = api.getData();
               var videoId = getId(data.src.value);
               var width = data.size.width;
               var height = data.size.height;
-              editor.insertContent('<iframe src="//www.youtube.com/embed/' + videoId + '" width="' + width + '" height="' + height + '" allowfullscreen></iframe>');
+              editor.insertContent(
+                '<iframe src="' + videoId + '" width="' + width + '" height="' + height + '" allowfullscreen></iframe>'
+
+              // '<iframe src="//www.youtube.com/embed/' + videoId + '" width="' + width + '" height="' + height + '" allowfullscreen></iframe>'
+              );
               api.close();
             },
             onChange: function (api) {
@@ -165,9 +197,7 @@
             openDialog();
           },
         });
-      
       });
-
 
       tinymce.init({
         selector: "#mytextarea",
@@ -187,42 +217,42 @@
           "bold italic backcolor | alignleft aligncenter " +
           "alignright alignjustify | bullist numlist outdent indent | " +
           "removeformat | help | spellchecker",
-         imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
-         automatic_uploads: true,
-         file_picker_types: 'image',
-         file_picker_callback: function (cb) {
-             let input = document.createElement('input');
+          imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        file_picker_callback: function (cb) {
+          let input = document.createElement('input');
              input.setAttribute('type', 'file');
              input.setAttribute('accept', 'image/*');
-             input.onchange = function () {
-                 let file = this.files[0];
-                 let size = this.files[0].size;
-                 console.log(file)
+          input.onchange = function () {
+            let file = this.files[0];
+            let size = this.files[0].size;
+            console.log(file)
 
-                 if (size > 1000000) {
-                     let message = document.createElement("span");
-                     message.appendChild(document.createTextNode("File exceeds 1 MB"));
-                     let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
-                     sourceInput.id = "sourceLargeImage";
-                     sourceInput.appendChild(message);
-                 } else {
-                     let reader = new FileReader();
-                     reader.onload = function () {
-                         let id = 'blobid' + (new Date()).getTime();
+            if (size > 1000000) {
+              let message = document.createElement("span");
+              message.appendChild(document.createTextNode("File exceeds 1 MB"));
+              let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
+              sourceInput.id = "sourceLargeImage";
+              sourceInput.appendChild(message);
+            } else {
+              let reader = new FileReader();
+              reader.onload = function () {
+                let id = 'blobid' + (new Date()).getTime();
                          let blobCache = tinymce.activeEditor.editorUpload.blobCache;
                          let base64 = reader.result.split(',')[1];
                          let blobInfo = blobCache.create(id, file, base64);
                          blobCache.add(blobInfo);
                          cb(blobInfo.blobUri(), {title: file.name});
                      };
-                     reader.readAsDataURL(file);
-                 }
-             };
-             input.click();
-         },
+             reader.readAsDataURL(file);
+            }
+          };
+          input.click();
+        },
 
         menubar: "file edit insert format tools table help developer",
-         menu: {
+        menu: {
              file: {title: 'File', items: 'newdocument | print'},
              edit: {title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace'},
              insert: {
@@ -238,7 +268,7 @@
              help: {title: 'Help', items: 'help'},
              developer: {title: 'Developer', items: 'code | visualblocks | example | exampleMedia'}
          },
-                 
+
         content_style:
           ".left { text-align: left; } " + "img.left { float: left; } " + "table.left { float: left; } " +
            ".right { text-align: right; } " + "img.right { float: right; } " + "table.right { float: right; } " +
@@ -265,7 +295,7 @@
           redheader: {block: "h1", styles: { color: "#ff0000" } },
           novedad: {inline: "span", styles: { color: "#377c37", margin: "0 0 0 1em"}},
           badge: {inline: "span", styles: { display: "inline-block", border: "1px solid #2276d2", "border-radius": "5px", padding: "2px 5px", margin: "0 2px", color: "#2276d2" }},
-        },
+          },
 
         style_formats: [
           { title: "General formats" },
@@ -277,15 +307,15 @@
           { title: "Custom format", format: "customformat" },
           { title: "Red header", format: "redheader" },
           { title: "Red text", format: "redtext" },
-          { title: "Badge", format: "badge" },      
-          { title: "Novedad", format: "novedad" },      
+          { title: "Badge", format: "badge" },
+          { title: "Novedad", format: "novedad" },
           { title: "Image formats" },
           { title: "Image Left", selector: "img", styles: { float: "left", margin: "0 10px 0 10px" } },
           { title: "Image Right", selector: "img", styles: { float: "right", margin: "0 0 10px 10px" } },
         ],
-        
+
         //   spellchecker_languages: 'English=en,Spanish=es',
-        
+
         block_formats: 'Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; ' +
         ' Align left=alignleft; Align center=aligncenter; Align right=alignright; Align full=alignfull; ' + 
         ' Custom format=customformat; Red header=redheader; Red text=redtext; Badge=badge; Novedad=novedad;',
