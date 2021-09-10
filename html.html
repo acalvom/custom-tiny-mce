@@ -118,9 +118,9 @@
             },
             initialData: {
               size: {
-                "width": "560",
-                "height": "314"
-              }
+                width: "560",
+                height: "314",
+              },
             },
             buttons: [
               { type: "cancel", text: "Close" },
@@ -135,18 +135,18 @@
                 var matchYoutube = url.match(regExpYoutube);
                 var matchDaily = url.match(regExpDaily);
                 var matchVimeo = url.match(regExpVimeo);
-                
+
                 if (matchYoutube && matchYoutube[1].length == 11) return "//www.youtube.com/embed/" + matchYoutube[1];
                 else if (matchDaily) return "//www.dailymotion.com/embed/video/" + matchDaily[3];
                 else if (matchVimeo) return "//player.vimeo.com/video/" + matchVimeo[1] + "?title=0&amp;byline=0";
-                else return "Error"
+                else return "Error";
               }
 
               var data = api.getData();
               var videoId = getId(data.src.value);
               var width = data.size.width;
               var height = data.size.height;
-              
+
               editor.insertContent('<iframe src="' + videoId + '" width="' + width + '" height="' + height + '" allowfullscreen></iframe>');
               api.close();
             },
@@ -181,20 +181,21 @@
         ],
         menubar: "file edit insert format tools table help developer",
         menu: {
-             file: {title: 'File', items: 'newdocument | print'},
-             edit: {title: 'Edit', items: 'undo redo | cut copy pastetext | selectall | searchreplace'},
-             insert: {
-                 title: 'Insert',
-                 items: 'image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime'
-             },
-             format: {
-                 title: 'Format',
-                 items: 'bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat'
-             },
-             tools: {title: 'Tools', items: 'spellchecker spellcheckerlanguage | code wordcount'},
-             table: {title: 'Table', items: 'inserttable | cell row column | tableprops deletetable'},
-             help: {title: 'Help', items: 'help'},
-             developer: {title: 'Developer', items: 'code | visualblocks | example | exampleMedia'}
+          file: { title: "File", items: "newdocument | print" },
+          edit: { title: "Edit", items: "undo redo | cut copy pastetext | selectall | searchreplace" },
+          insert: {
+            title: "Insert",
+            items: "image link media template inserttable | charmap hr | pagebreak nonbreaking anchor toc | insertdatetime",
+          },
+          format: {
+            title: "Format",
+            items:
+              "bold italic underline strikethrough superscript subscript codeformat | formats blockformats fontformats fontsizes align lineheight | forecolor backcolor | removeformat",
+          },
+          tools: { title: "Tools", items: "spellchecker spellcheckerlanguage | code wordcount" },
+          table: { title: "Table", items: "inserttable | cell row column | tableprops deletetable" },
+          help: { title: "Help", items: "help" },
+          developer: { title: "Developer", items: "code | visualblocks | example | exampleMedia" },
         },
         toolbar:
           "preview | " +
@@ -203,15 +204,15 @@
           "bold italic backcolor | alignleft aligncenter " +
           "alignright alignjustify | bullist numlist outdent indent | " +
           "removeformat | help | spellchecker",
-        imagetools_toolbar: 'rotateleft rotateright | flipv fliph | editimage imageoptions',
+        imagetools_toolbar: "rotateleft rotateright | flipv fliph | editimage imageoptions",
         media_alt_source: false,
         media_poster: false,
         automatic_uploads: true,
-        file_picker_types: 'image',
+        file_picker_types: "image",
         file_picker_callback: function (cb) {
-          let input = document.createElement('input');
-             input.setAttribute('type', 'file');
-             input.setAttribute('accept', 'image/*');
+          let input = document.createElement("input");
+          input.setAttribute("type", "file");
+          input.setAttribute("accept", "image/*");
           input.onchange = function () {
             let file = this.files[0];
             let size = this.files[0].size;
@@ -219,27 +220,27 @@
             if (size > 1000000) {
               let message = document.createElement("span");
               message.appendChild(document.createTextNode("File exceeds 1 MB"));
-              let sourceInput = document.getElementsByClassName('tox-form')[0].childNodes[0];
+              let sourceInput = document.getElementsByClassName("tox-form")[0].childNodes[0];
               sourceInput.id = "sourceLargeImage";
               sourceInput.appendChild(message);
             } else {
               let reader = new FileReader();
               reader.onload = function () {
-                let id = 'blobid' + (new Date()).getTime();
-                         let blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                         let base64 = reader.result.split(',')[1];
-                         let blobInfo = blobCache.create(id, file, base64);
-                         blobCache.add(blobInfo);
-                         cb(blobInfo.blobUri(), {title: file.name});
-                     };
-             reader.readAsDataURL(file);
+                let id = "blobid" + new Date().getTime();
+                let blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                let base64 = reader.result.split(",")[1];
+                let blobInfo = blobCache.create(id, file, base64);
+                blobCache.add(blobInfo);
+                cb(blobInfo.blobUri(), { title: file.name });
+              };
+              reader.readAsDataURL(file);
             }
           };
           input.click();
         },
         content_style:
           ".left { text-align: left; } " + "img.left { float: left; } " + "table.left { float: left; } " +
-           ".right { text-align: right; } " + "img.right { float: right; } " + "table.right { float: right; } " +
+          ".right { text-align: right; } " + "img.right { float: right; } " + "table.right { float: right; } " +
           ".center { text-align: center; } " + "img.center { display: block; margin: 0 auto; } " + "table.center { display: block; margin: 0 auto; } " +
           ".full { text-align: justify; } " + "img.full { display: block; margin: 0 auto; } " +  "table.full { display: block; margin: 0 auto; } " +
           ".bold { font-weight: bold; } " +
@@ -258,10 +259,10 @@
           underline: { inline: "span", classes: "underline", exact: true },
           strikethrough: { inline: "del" },
           customformat: { inline: "span", styles: { color: "#00ff00", fontSize: "20px" }, attributes: { title: "My custom format" }, classes: "example1" },
-          redtext: {inline: "span", styles: { color: "#ff0000" }},
-          redheader: {block: "h1", styles: { color: "#ff0000" } },
-          novedad: {inline: "span", styles: { color: "#377c37", margin: "0 0 0 1em"}},
-          badge: {inline: "span", styles: { display: "inline-block", border: "1px solid #2276d2", "border-radius": "5px", padding: "2px 5px", margin: "0 2px", color: "#2276d2" }},
+          redtext: { inline: "span", styles: { color: "#ff0000" } },
+          redheader: { block: "h1", styles: { color: "#ff0000" } },
+          novedad: { inline: "span", styles: { color: "#377c37", margin: "0 0 0 1em" } },
+          badge: { inline: "span", styles: { display: "inline-block", border: "1px solid #2276d2", "border-radius": "5px", padding: "2px 5px", margin: "0 2px", color: "#2276d2" }, },
         },
         style_formats: [
           { title: "General formats" },
@@ -279,13 +280,14 @@
           { title: "Image Left", selector: "img", styles: { float: "left", margin: "0 10px 0 10px" } },
           { title: "Image Right", selector: "img", styles: { float: "right", margin: "0 0 10px 10px" } },
         ],
-        block_formats: 'Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; ' +
-        ' Align left=alignleft; Align center=aligncenter; Align right=alignright; Align full=alignfull; ' + 
-        ' Custom format=customformat; Red header=redheader; Red text=redtext; Badge=badge; Novedad=novedad;',
-        
+        block_formats:
+          "Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; " +
+          " Align left=alignleft; Align center=aligncenter; Align right=alignright; Align full=alignfull; " +
+          " Custom format=customformat; Red header=redheader; Red text=redtext; Badge=badge; Novedad=novedad;",
+
         setup: function (ed) {
           var myContent = ed.id;
-        }
+        },
       });
     </script>
     <title>Customize TinyEMC</title>
