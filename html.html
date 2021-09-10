@@ -77,24 +77,22 @@
             },
           });
         };
-        /* Add a button that opens a window */
+        // Add a button that opens a window 
         editor.ui.registry.addButton("example", {
           text: "URL image",
           icon: "image",
           onAction: function () {
-            /* Open window */
             openDialog();
           },
         });
-        /* Adds a menu item, which can then be included in any menu via the menu/menubar configuration */
+        // Adds a menu item, which can then be included in any menu via the menu/menubar configuration 
         editor.ui.registry.addMenuItem("example", {
           text: "Example plugin",
           onAction: function () {
-            /* Open window */
             openDialog();
           },
         });
-        /* Return the metadata for the help plugin */
+        // Return the metadata for the help plugin 
         return {
           getMetadata: function () {
             return {
@@ -171,7 +169,7 @@
 
       tinymce.init({
         selector: "#mytextarea",
-        height: 500,
+        height: 500,   
         plugins: [
           "advlist anchor autolink autosave charmap codesample code directionality example exampleMedia fullscreen",
           "help hr image imagetools insertdatetime lists link media",
@@ -288,6 +286,7 @@
         setup: function (ed) {
           var myContent = ed.id;
         },
+        
       });
     </script>
     <title>Customize TinyEMC</title>
