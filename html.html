@@ -198,7 +198,7 @@
         toolbar:
           "preview | " +
           "image | example | " +
-          "undo redo | formatselect | " +
+          "undo redo | formatselect | template |" +
           "bold italic backcolor | alignleft aligncenter " +
           "alignright alignjustify | bullist numlist outdent indent | " +
           "removeformat | help | spellchecker",
@@ -282,11 +282,30 @@
           "Paragraph=p; Header 1=h1; Header 2=h2; Header 3=h3; " +
           " Align left=alignleft; Align center=aligncenter; Align right=alignright; Align full=alignfull; " +
           " Custom format=customformat; Red header=redheader; Red text=redtext; Badge=badge; Novedad=novedad;",
-
+        templates: [
+          {
+            title: "New Table",
+            description: "creates a new table",
+            content:
+              '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>',
+          },
+          {
+            title: "New Table with URL",
+            description: "creates a new table",
+            url: 'templates/templateTable.html',
+          },
+          {
+            title: "New list with dates",
+            description: "New List with dates",
+            content:
+              '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>',
+          },
+        ],
+        template_cdate_format: "[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]",
+        template_mdate_format: "[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]",
         setup: function (ed) {
           var myContent = ed.id;
         },
-        
       });
     </script>
     <title>Customize TinyEMC</title>
