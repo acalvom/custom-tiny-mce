@@ -137,7 +137,7 @@
                 if (matchYoutube && matchYoutube[1].length == 11) return "//www.youtube.com/embed/" + matchYoutube[1];
                 else if (matchDaily) return "//www.dailymotion.com/embed/video/" + matchDaily[3];
                 else if (matchVimeo) return "//player.vimeo.com/video/" + matchVimeo[1] + "?title=0&amp;byline=0";
-                else return "Error";
+                else return url;
               }
 
               var data = api.getData();
@@ -167,6 +167,7 @@
         });
       });
 
+    
       tinymce.init({
         selector: "#mytextarea",
         height: 500,   
