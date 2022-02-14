@@ -167,12 +167,28 @@
         });
       });
 
+      tinymce.PluginManager.add("exampleTable", function (editor, url) {
+        editor.ui.registry.addMenuItem("exampleTable", {
+          text: "Custom table",
+          onAction: function () {
+            tinymce.activeEditor.execCommand("mceInsertTable");
+          },
+        });
+
+        editor.ui.registry.addButton("exampleTable", {
+          text: "Custom table",
+          icon: "table",
+          onAction: function () {
+            tinymce.activeEditor.execCommand("mceInsertTable");
+          },
+        });
+      });
     
       tinymce.init({
         selector: "#mytextarea",
         height: 500,   
         plugins: [
-          "advlist anchor autolink autosave charmap codesample code directionality example exampleMedia fullscreen",
+          "advlist anchor autolink autosave charmap codesample code directionality example exampleMedia exampleTable fullscreen",
           "help hr image imagetools insertdatetime lists link media",
           "nonbreaking noneditable pagebreak paste print preview quickbars save searchreplace",
           "table template textpattern toc visualblocks visualchars wordcount",
@@ -194,15 +210,20 @@
           tools: { title: "Tools", items: "spellchecker spellcheckerlanguage | code wordcount" },
           table: { title: "Table", items: "inserttable | cell row column | tableprops deletetable" },
           help: { title: "Help", items: "help" },
-          developer: { title: "Developer", items: "code | visualblocks | example | exampleMedia" },
+          developer: { title: "Developer", items: "code | visualblocks | example | exampleMedia | exampleTable" },
         },
         toolbar:
           "preview | " +
-          "image | example | " +
+          "image | example | exampleTable | customDateButton | " +
           "undo redo | formatselect | template |" +
           "bold italic backcolor | alignleft aligncenter " +
           "alignright alignjustify | bullist numlist outdent indent | " +
           "removeformat | help | spellchecker",
+        table_toolbar: "tableprops tabledelete",
+        table_appearance_options: false,
+        table_advtab: false,
+        table_cell_advtab: false,
+        table_row_advtab: false,
         imagetools_toolbar: "rotateleft rotateright | flipv fliph | editimage imageoptions",
         media_alt_source: false,
         media_poster: false,
@@ -287,32 +308,32 @@
         {
             title: "Contenido en 3 columnas",
             description: "Crea tres columnas para insertar contenido",
-            url: 'templates/tplTresColumnas.html',
+            url: "templates/tplTresColumnas.html",
           },
           {
             title: "Título + Listado",
             description: "Añade un título a una sección y elementos listados",
-            url: 'templates/tplTituloLista.html',
+            url: "templates/tplTituloLista.html",
           },
           {
             title: "Imagen + Texto",
             description: "Añade una imagen a la izquierda asociada a un texto a la derecha",
-            url: 'templates/tplImagenTexto.html',
+            url: "templates/tplImagenTexto.html",
           },
           {
             title: "Texto + Imagen",
             description: "Añade una imagen a la derecha asociada a un texto a la izquierda",
-            url: 'templates/tplTextoImagen.html',
+            url: "templates/tplTextoImagen.html",
           },
           {
             title: "Texto + Aside",
             description: "Añade una aclaración a la derecha asociada a un texto a la izquierda",
-            url: 'templates/tplTextoAside.html',
+            url: "templates/tplTextoAside.html",
           },
           {
             title: "Título + Año + Lista",
             description: "Añade un título a una sección de años y un listado asociado a dicho año",
-            url: 'templates/tplTituloAnyoLista.html',
+            url: "templates/tplTituloAnyoLista.html",
           },
           {
             title: "New list with dates",
